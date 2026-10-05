@@ -1,6 +1,6 @@
 {
-  "name": "isolated-vm",
-  "version": "7.0.1",
+  "name": "@supolka/isolated-vm",
+  "version": "7.1.0",
   "description": "Access to multiple isolates",
   "main": "isolated-vm.js",
   "types": "isolated-vm.d.ts",
@@ -23,13 +23,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/laverdet/isolated-vm.git"
+    "url": "git+https://github.com/maksimyaromin/isolated-vm.git"
   },
   "author": "https://github.com/laverdet/",
   "license": "ISC",
   "gypfile": true,
-  "bugs": {
-    "url": "https://github.com/laverdet/isolated-vm/issues"
-  },
-  "homepage": "https://github.com/laverdet/isolated-vm#readme"
+  "homepage": "https://github.com/maksimyaromin/isolated-vm#readme"
 }
