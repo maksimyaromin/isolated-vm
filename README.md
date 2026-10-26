@@ -1,3 +1,19 @@
+`@supolka/isolated-vm` is [isolated-vm](https://github.com/laverdet/isolated-vm) with [the commits merged upstream between its 7.0.1 release and aa2aa8e3](https://github.com/laverdet/isolated-vm/compare/v7.0.1...aa2aa8e3). On 26 October 2026 no `isolated-vm` release contained them, and [the request for a new release](https://github.com/laverdet/isolated-vm/issues/570), opened on 31 August 2026, had no reply.
+
+Version 7.1.0 is upstream `main` at [aa2aa8e3](https://github.com/laverdet/isolated-vm/commit/aa2aa8e3), built unchanged from source. [One commit](https://github.com/maksimyaromin/isolated-vm/commit/96efa492) on top changes only `package.json`: the package name, the version and the project URLs. A second commit adds this notice. Prebuilt binaries come from upstream's [prebuild workflow](https://github.com/laverdet/isolated-vm/blob/aa2aa8e3/.github/workflows/prebuild.yml) run in this fork, for the same platforms as [`isolated-vm` 7.0.1](https://www.npmjs.com/package/isolated-vm/v/7.0.1).
+
+Install it under the original name with an [npm alias](https://docs.npmjs.com/cli/v12/commands/npm-install), so code that requires or imports `isolated-vm` needs no change:
+
+```sh
+npm install isolated-vm@npm:@supolka/isolated-vm@7.1.0
+```
+
+Once an `isolated-vm` release contains these commits, this package will be [deprecated on npm](https://docs.npmjs.com/cli/v12/commands/npm-deprecate) with a message pointing to that release, and npm will print that message on every install. Switch back to `isolated-vm` then.
+
+Author and license are upstream's: Marcel Laverdet, [ISC](https://github.com/maksimyaromin/isolated-vm/blob/release/supolka-7.1.0/LICENSE).
+
+---
+
 [![npm version](https://badgen.now.sh/npm/v/isolated-vm)](https://www.npmjs.com/package/isolated-vm)
 [![isc license](https://badgen.now.sh/npm/license/isolated-vm)](https://github.com/laverdet/isolated-vm/blob/main/LICENSE)
 [![github action](https://github.com/laverdet/isolated-vm/actions/workflows/build.yml/badge.svg)](https://github.com/laverdet/isolated-vm/actions/workflows/build.yml)
