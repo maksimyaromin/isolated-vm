@@ -301,8 +301,13 @@ class ApplyRunner final : public ThreePhaseTask {
 				Local<Function> callback_fn = Deref(callback_persistent);
 				did_finish = std::make_shared<char>(0);
 				std::array<Local<Value>, 3> argv;
+#if V8_AT_LEAST(14, 7, 0)
+				argv[0] = External::New(isolate, reinterpret_cast<void*>(this), kExternalPointerTypeTagDefault);
+				argv[1] = External::New(isolate, new shared_ptr<char>(did_finish), kExternalPointerTypeTagDefault);
+#else
 				argv[0] = External::New(isolate, reinterpret_cast<void*>(this));
 				argv[1] = External::New(isolate, new shared_ptr<char>(did_finish));
+#endif
 				argv[2] = value;
 				async_wait = &wait;
 				Unmaybe(callback_fn->Call(context_handle, callback_fn, 3, &argv.front()));
@@ -333,13 +338,21 @@ class ApplyRunner final : public ThreePhaseTask {
 		static void AsyncCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
 			// It's possible the invocation timed out, in which case the ApplyRunner will be dead. The
 			// shared_ptr<bool> here will be marked as true and we can exit early.
+#if V8_AT_LEAST(14, 7, 0)
+			auto* did_finish_ptr = reinterpret_cast<shared_ptr<char>*>(info[1].As<External>()->Value(kExternalPointerTypeTagDefault));
+#else
 			auto* did_finish_ptr = reinterpret_cast<shared_ptr<char>*>(info[1].As<External>()->Value());
+#endif
 			auto did_finish = std::move(*did_finish_ptr);
 			delete did_finish_ptr;
 			if (*did_finish == 1) {
 				return;
 			}
+#if V8_AT_LEAST(14, 7, 0)
+			ApplyRunner& self = *reinterpret_cast<ApplyRunner*>(info[0].As<External>()->Value(kExternalPointerTypeTagDefault));
+#else
 			ApplyRunner& self = *reinterpret_cast<ApplyRunner*>(info[0].As<External>()->Value());
+#endif
 			if (info.Length() == 3) {
 				// Resolved
 				FunctorRunners::RunCatchExternal(IsolateEnvironment::GetCurrent().DefaultContext(), [&self, &info]() {
@@ -482,7 +495,7 @@ class AccessorRunner : public ThreePhaseTask {
 			if (object->IsProxy()) {
 				return true;
 			} else {
-#if V8_AT_LEAST(12, 5, 213)
+#if V8_AT_LEAST(12, 5, 213) && !V8_AT_LEAST(15, 3, 0)
 				auto proto = object->GetPrototypeV2();
 #else
 				auto proto = object->GetPrototype();
@@ -532,7 +545,7 @@ class GetRunner final : public AccessorRunner {
 								}
 								return Unmaybe(target->GetRealNamedProperty(context, name));
 							}
-#if V8_AT_LEAST(12, 5, 213)
+#if V8_AT_LEAST(12, 5, 213) && !V8_AT_LEAST(15, 3, 0)
 							auto next = target->GetPrototypeV2();
 #else
 							auto next = target->GetPrototype();

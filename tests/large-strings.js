@@ -11,7 +11,7 @@ const timeout = setTimeout(() => {
 }, 1000);
 (async function() {
 	try {
-		await context.eval('/1+2/.test("1".repeat(1024 ** 2 * 127));', { timeout: 100 });
+		await context.eval('const string = "1".repeat(1024 ** 2 * 127); while (true) /1+2/.test(string);', { timeout: 100 });
 		console.log('did not fail');
 	} catch (err) {}
 	clearTimeout(timeout);

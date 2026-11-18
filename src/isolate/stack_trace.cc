@@ -77,7 +77,9 @@ void ErrorStackGetter(Local<Name> /*property*/, const PropertyCallbackInfo<Value
 	FunctorRunners::RunCallback(info, [ &info ]() {
 		Isolate* isolate = Isolate::GetCurrent();
 		Local<Context> context = isolate->GetCurrentContext();
-#if V8_AT_LEAST(14, 0, 0)
+#if V8_AT_LEAST(15, 3, 0)
+		Local<Object> holder = info.Holder();
+#elif V8_AT_LEAST(14, 0, 0)
 		Local<Object> holder = info.HolderV2();
 #else
 		Local<Object> holder = info.This();

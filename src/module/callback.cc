@@ -137,7 +137,11 @@ auto CallbackTransferable::TransferIn() -> Local<Value> {
 
 void CallbackTransferable::Invoke(const FunctionCallbackInfo<Value>& info) {
 	FunctorRunners::RunCallback(info, [&]() {
+#if V8_AT_LEAST(14, 7, 0)
+		auto& data = *static_cast<CallbackHandle::Data*>(info.Data().As<External>()->Value(kExternalPointerTypeTagDefault));
+#else
 		auto& data = *static_cast<CallbackHandle::Data*>(info.Data().As<External>()->Value());
+#endif
 		auto& isolate = *data.context.GetIsolateHolder();
 		switch (data.apply) {
 			case CallbackHandle::Data::Apply::Sync:

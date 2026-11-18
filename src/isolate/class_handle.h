@@ -235,7 +235,7 @@ class ClassHandle {
 		static auto MaybeFreeze(v8::Local<v8::Object> handle) {
 			auto context = v8::Isolate::GetCurrent()->GetCurrentContext();
 			if (!detail::DontFreezePrototype<Type>::value) {
-#if V8_AT_LEAST(12, 5, 213)
+#if V8_AT_LEAST(12, 5, 213) && !V8_AT_LEAST(15, 3, 0)
 				handle->GetPrototypeV2().As<v8::Object>()->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen);
 #else
 				handle->GetPrototype().As<v8::Object>()->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen);

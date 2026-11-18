@@ -1,6 +1,7 @@
 #pragma once
 #include "environment.h"
 #include "util.h"
+#include "v8_version.h"
 #include <v8.h>
 #include <memory>
 #include <utility>
@@ -20,7 +21,11 @@ class ExternalHolder {
 			// Allocate heap memory for ExternalHolder (don't construct)
 			ExternalHolder* that = std::allocator<ExternalHolder>{}.allocate(1);
 			// Create a new v8::External referencing the unconstructed holder
+#if V8_AT_LEAST(14, 7, 0)
+			auto external = v8::External::New(v8::Isolate::GetCurrent(), &that->data, v8::kExternalPointerTypeTagDefault);
+#else
 			auto external = v8::External::New(v8::Isolate::GetCurrent(), &that->data);
+#endif
 			// Construct the holder in-place
 			new(that) ExternalHolder(external, std::forward<Args>(args)...);
 			// Setup weak callbacks (technically could throw)

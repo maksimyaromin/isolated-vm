@@ -562,13 +562,13 @@ auto IsolateHandle::CreateSnapshot(ArrayRange script_handles, MaybeLocal<String>
 		Isolate* isolate;
 		isolate = Isolate::Allocate();
 		PlatformDelegate::RegisterIsolate(isolate, delegate.get());
-		SnapshotCreator snapshot_creator{isolate};
+		auto snapshot_creator = std::make_unique<SnapshotCreator>(isolate);
 		{
 			Locker locker(isolate);
 			Isolate::Scope isolate_scope(isolate);
 			HandleScope handle_scope(isolate);
 			Local<Context> context = Context::New(isolate);
-			snapshot_creator.SetDefaultContext(context, {&SerializeInternalFieldsCallback, nullptr});
+			snapshot_creator->SetDefaultContext(context, {&SerializeInternalFieldsCallback, nullptr});
 			FunctorRunners::RunCatchExternal(context, [&]() {
 				HandleScope handle_scope(isolate);
 				Local<Context> context_dirty = Context::New(isolate);
@@ -625,8 +625,12 @@ auto IsolateHandle::CreateSnapshot(ArrayRange script_handles, MaybeLocal<String>
 		}
 		// nb: Snapshot must be created even in the error case, because `~SnapshotCreator` will crash if
 		// you don't
-		snapshot = snapshot_creator.CreateBlob(SnapshotCreator::FunctionCodeHandling::kKeep);
+		snapshot = snapshot_creator->CreateBlob(SnapshotCreator::FunctionCodeHandling::kKeep);
 		snapshot_data_ptr.reset(snapshot.data);
+		// `~SnapshotCreator` disposes the isolate, so it has to run before `UnregisterIsolate`. In
+		// nodejs v27, v8 asks the platform for the isolate's foreground task runner during disposal,
+		// and the platform aborts if the isolate is no longer registered.
+		snapshot_creator.reset();
 		PlatformDelegate::UnregisterIsolate(isolate);
 	}
 
